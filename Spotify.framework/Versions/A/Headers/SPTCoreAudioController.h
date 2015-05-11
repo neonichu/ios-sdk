@@ -1,10 +1,5 @@
-//
-//  SPTCoreAudioController.h
-//  Viva
-//
-//  Created by Daniel Kennett on 04/02/2012.
 /*
- Copyright 2013 Spotify AB
+ Copyright 2015 Spotify AB
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -26,12 +21,18 @@
 #import <Foundation/Foundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 
+#if TARGET_OS_IPHONE
+#import <UIKit/UIApplication.h>
+#endif
+
 @class SPTCoreAudioController;
 @class SPTCoreAudioDevice;
 
 /** Provides delegate callbacks for SPTCoreAudioController. */
 
 @protocol SPTCoreAudioControllerDelegate <NSObject>
+
+@optional
 
 /** Called repeatedly during audio playback when audio is pushed to the system's audio output.
  
@@ -139,4 +140,11 @@
 
 #endif
 
+#if TARGET_OS_IPHONE
+
+/** Current background playback task reference. */
+@property (readwrite, nonatomic) UIBackgroundTaskIdentifier backgroundPlaybackTask;
+
+#endif
+ 
 @end

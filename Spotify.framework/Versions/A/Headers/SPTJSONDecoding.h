@@ -1,10 +1,5 @@
-//
-//  SPTJSONDecoding.h
-//  Basic Auth
-//
-//  Created by Daniel Kennett on 14/11/2013.
 /*
- Copyright 2013 Spotify AB
+ Copyright 2015 Spotify AB
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -21,15 +16,31 @@
 
 #import <Foundation/Foundation.h>
 
+/** An object that supports decoding from JSON. */
 @protocol SPTJSONObject <NSObject>
 
+/** Initialise the object with the given decoded JSON response from the web API
+  (typically an `NSDictionary`, but not always).
+ 
+ @param decodedObject The decoded representation of the object.
+ @param error An error pointer that will contain an error if a problem occurred. 
+ @return Returns the initalised object, or `nil` if a problem occurred.
+ */
 -(id)initWithDecodedJSONObject:(id)decodedObject error:(NSError **)error;
+
+/** Returns the original decoded object (typically an `NSDictionary`, but not always)
+ that was used to create the object. Useful for serialising. */
+@property (nonatomic, readonly, copy) id decodedJSONObject;
 
 @end
 
 /** Helper class for decoding JSON from the Spotify web API. You shouldn't need to use this 
  in your application — use `SPTRequest` instead. */
 @interface SPTJSONDecoding : NSObject
+
+///----------------------------
+/// @name JSON Decoding
+///----------------------------
 
 /** Convert an object decoded from JSON into a Spotify SDK metadata object.
  
@@ -65,3 +76,11 @@
 +(id)partialSPObjectFromEncodedJSON:(NSData *)json error:(NSError **)error;
 
 @end
+
+/** Base object for JSON based models. */
+@interface SPTJSONObjectBase : NSObject<SPTJSONObject>
+
+@property (nonatomic, readwrite, copy) id decodedJSONObject;
+
+@end
+

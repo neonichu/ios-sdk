@@ -1,10 +1,5 @@
-//
-//  SPTTypes.h
-//  Spotify iOS SDK
-//
-//  Created by Daniel Kennett on 27/02/14.
 /*
- Copyright 2014 Spotify AB
+ Copyright 2015 Spotify AB
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -28,13 +23,13 @@
 typedef void (^SPTErrorableOperationCallback)(NSError *error);
 
 
-/** This protocol defines an object that can be played by `SPTTrackPlayer`. */
+/** This protocol defines an object that can be played by `SPTAudioStreamingController`. */
 @protocol SPTTrackProvider <NSObject>
 
-/** Returns the tracks for playback. */
--(NSArray *)tracks;
+/** Returns the tracks for playback if no player-supported URI. */
+-(NSArray *)tracksForPlayback;
 
-/** Returns the URI of the object. */
--(NSURL *)uri;
+/** Returns the URI to this set of tracks, nil if not supported by player. */
+-(NSURL *)playableUri;
 
 @end

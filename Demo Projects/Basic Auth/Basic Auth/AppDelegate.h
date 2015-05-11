@@ -1,10 +1,5 @@
-//
-//  AppDelegate.h
-//  Empty CocoaLibSpotify Project
-//
-//  Created by Daniel Kennett on 02/08/2012.
 /*
- Copyright 2013 Spotify AB
+ Copyright 2015 Spotify AB
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -21,10 +16,15 @@
 
 #import <UIKit/UIKit.h>
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate>
+@interface AppDelegate : UIResponder <UIApplicationDelegate, UITableViewDataSource, UITableViewDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
 
 - (IBAction)logIn:(id)sender;
+
+@property (nonatomic, readwrite, copy) NSArray *scopes;
+@property (nonatomic, readwrite, copy) NSArray *scopeDisplayNames;
+@property (nonatomic, readwrite, strong) NSMutableArray *selectedScopes;
 
 @end

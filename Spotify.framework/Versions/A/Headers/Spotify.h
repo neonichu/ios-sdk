@@ -1,10 +1,5 @@
-//
-//  Spotify.h
-//  Spotify iOS SDK
-//
-//  Created by Daniel Kennett on 2014-02-19.
 /*
- Copyright 2014 Spotify AB
+ Copyright 2015 Spotify AB
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -19,9 +14,7 @@
  limitations under the License.
  */
 
-
 #import <Foundation/Foundation.h>
-
 #import "SPTTypes.h"
 
 // Auth and Session Handling
@@ -31,6 +24,7 @@
 
 #if TARGET_OS_IPHONE
 #import "SPTConnectButton.h"
+#import "SPTAuthViewController.h"
 #endif
 
 // Metadata
@@ -47,14 +41,23 @@
 #import "SPTPlaylistList.h"
 #import "SPTPlaylistSnapshot.h"
 #import "SPTTrack.h"
+#import "SPTPlaylistTrack.h"
+#import "SPTSavedTrack.h"
 #import "SPTImage.h"
+#import "SPTUser.h"
+#import "SPTListPage.h"
+#import "SPTFeaturedPlaylistList.h"
+#import "SPTFollow.h"
+#import "SPTBrowse.h"
+#import "SPTYourMusic.h"
 
 // Audio playback
 
 #import "SPTCircularBuffer.h"
 #import "SPTCoreAudioController.h"
 #import "SPTAudioStreamingController.h"
-#import "SPTTrackPlayer.h"
+#import "SPTAudioStreamingController_ErrorCodes.h"
+#import "SPTDiskCaching.h"
 
 #if !TARGET_OS_IPHONE
 #import "SPTCoreAudioDevice.h"

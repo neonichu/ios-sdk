@@ -1,84 +1,68 @@
-//
-//  AppDelegate.m
-//  Empty iOS SDK Project
-//
-//  Created by Daniel Kennett on 2014-02-19.
-//  Copyright (c) 2014 Your Company. All rights reserved.
-//
+/*
+ Copyright 2015 Spotify AB
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 #import "AppDelegate.h"
 #import <Spotify/Spotify.h>
+#import "Config.h"
 #import "ViewController.h"
-
-#error Please fill in your application's details here and remove this error to run the sample.
-static NSString * const kClientId = @"";
-static NSString * const kCallbackURL = @"";
-
-static NSString * const kSessionUserDefaultsKey = @"SpotifySession";
 
 @implementation AppDelegate
 
--(void)enableAudioPlaybackWithSession:(SPTSession *)session {
-	ViewController *viewController = (ViewController *)self.window.rootViewController;
-	[viewController handleNewSession:session];
-}
-
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-{
-    // Override point for customization after application launch.
-	id plistRep = [[NSUserDefaults standardUserDefaults] valueForKey:kSessionUserDefaultsKey];
-	SPTSession *session = [[SPTSession alloc] initWithPropertyListRepresentation:plistRep];
-
-	if (session.credential.length > 0) {
-		[self enableAudioPlaybackWithSession:session];
-	} else {
-		SPTAuth *auth = [SPTAuth defaultInstance];
-		NSURL *loginURL = [auth loginURLForClientId:kClientId
-								declaredRedirectURL:[NSURL URLWithString:kCallbackURL]
-											 scopes:@[@"login"]];
-
-		double delayInSeconds = 0.1;
-		dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-		dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-			// If you open a URL during application:didFinishLaunchingWithOptions:, you
-			// seem to get into a weird state.
-			[[UIApplication sharedApplication] openURL:loginURL];
-		});
-	}
-
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    // Set up shared authentication information
+    SPTAuth *auth = [SPTAuth defaultInstance];
+    auth.clientID = @kClientId;
+    auth.requestedScopes = @[SPTAuthStreamingScope];
+    auth.redirectURL = [NSURL URLWithString:@kCallbackURL];
+    #ifdef kTokenSwapServiceURL
+    auth.tokenSwapURL = [NSURL URLWithString:@kTokenSwapServiceURL];
+    #endif
+    #ifdef kTokenRefreshServiceURL
+    auth.tokenRefreshURL = [NSURL URLWithString:@kTokenRefreshServiceURL];
+    #endif
+    auth.sessionUserDefaultsKey = @kSessionUserDefaultsKey;
     return YES;
 }
-							
+
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+    SPTAuth *auth = [SPTAuth defaultInstance];
 
-	SPTAuthCallback authCallback = ^(NSError *error, SPTSession *session) {
-		// This is the callback that'll be triggered when auth is completed (or fails).
+    SPTAuthCallback authCallback = ^(NSError *error, SPTSession *session) {
+        // This is the callback that'll be triggered when auth is completed (or fails).
 
-		if (error != nil) {
-			NSLog(@"*** Auth error: %@", error);
-			return;
-		}
+        if (error != nil) {
+            NSLog(@"*** Auth error: %@", error);
+            return;
+        }
 
-		[[NSUserDefaults standardUserDefaults] setValue:[session propertyListRepresentation]
-												 forKey:kSessionUserDefaultsKey];
-		[self enableAudioPlaybackWithSession:session];
-	};
+        auth.session = session;
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"sessionUpdated" object:self];
+    };
+    
+    /*
+     Handle the callback from the authentication service. -[SPAuth -canHandleURL:]
+     helps us filter out URLs that aren't authentication URLs (i.e., URLs you use elsewhere in your application).
+     */
+    
+    if ([auth canHandleURL:url]) {
+        [auth handleAuthCallbackWithTriggeredAuthURL:url callback:authCallback];
+        return YES;
+    }
 
-	/*
-	 STEP 2: Handle the callback from the authentication service. -[SPAuth -canHandleURL:withDeclaredRedirectURL:]
-	 helps us filter out URLs that aren't authentication URLs (i.e., URLs you use elsewhere in your application).
-
-	 Make the token swap endpoint URL matches your auth service URL.
-	 */
-
-	if ([[SPTAuth defaultInstance] canHandleURL:url withDeclaredRedirectURL:[NSURL URLWithString:kCallbackURL]]) {
-		[[SPTAuth defaultInstance] handleAuthCallbackWithTriggeredAuthURL:url
-											tokenSwapServiceEndpointAtURL:[NSURL URLWithString:@"http://localhost:1234/swap"]
-																 callback:authCallback];
-		return YES;
-	}
-
-	return NO;
+    return NO;
 }
 
 @end
